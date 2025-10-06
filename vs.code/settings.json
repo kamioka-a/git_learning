@@ -1,0 +1,239 @@
+{
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // 📋 プロジェクト環境設定 - atjc-knowledge-portal
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // 🎯 対象環境: Windows 10/11 専用設定
+  // 💻 対応エディタ: VS Code（推奨）/ Cursor（対応済み）
+  // 🏗️ Terraformバージョン: v1.12.2（tenvによる自動管理）
+  // 🐍 Python環境: uv + .venv仮想環境
+  // 🎨 統一開発環境: Scoop Git Bash
+  //
+  // ※ このファイルの設定は全て推奨拡張機能の自動インストール前提で構成されています
+  // ※ VS Code起動時の推奨拡張機能通知で一括インストールしてください
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // 🖥️ VS Code/Cursor 基本設定
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+  // 📄 ファイル・フォルダー設定
+  "files.eol": "\n",                    // 改行コードをLF（Linux形式）に統一（Git連携のため）
+  "files.associations": {               // ファイル拡張子の関連付け
+    "*.json": "jsonc",                   // JSONファイルをJSONコメント形式として扱う
+    "*.tfvars": "terraform-vars"
+  },
+
+  // 📂 ファイル表示・検索設定
+  "files.exclude": {                    // エクスプローラーで非表示にするファイル・フォルダー
+    "**/.terraform/**": true,           // Terraformの作業ディレクトリ（重い処理を避ける）
+    "**/.terraform.lock.hcl": false,    // ロックファイルは表示（バージョン管理対象）
+    "**/terraform.tfstate*": true,      // Terraformステートファイル（機密情報含む）
+    "**/crash.log": true,               // クラッシュログ
+    "**/*.tfplan": true,                // Terraform実行計画ファイル
+    "**/override.tf": true,             // Terraformオーバーライドファイル
+    "**/override.tf.json": true,
+    "**/*_override.tf": true,
+    "**/*_override.tf.json": true,
+    "**/.terraformrc": true,
+    "**/terraform.rc": true,
+    "**/*.backup": false,                // バックアップファイル
+    "**/*.tmp": true,                   // 一時ファイル
+    "**/*.log": true,                   // ログファイル
+    "**/node_modules/**": true,         // Node.jsパッケージ（容量大）
+    "**/.git/objects/**": true,         // Gitオブジェクト（不要）
+    "**/.git/subtree-cache/**": true,   // Git subtreeキャッシュ
+    "**/Thumbs.db": true,              // Windows画像キャッシュ
+    "**/.DS_Store": true               // macOS隠しファイル
+  },
+  "search.exclude": {                  // 検索対象から除外するパターン（パフォーマンス向上）
+    "**/.terraform/**": true,
+    "**/terraform.tfstate*": true,
+    "**/*.tfplan": true,
+    "**/node_modules/**": true,
+    "**/.git/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/target/**": true,
+    "**/*.log": true,
+    "**/.vscode/.ropeproject/**": true
+  },
+
+  // ✏️ エディター基本設定
+  "editor.tabSize": 2,                 // インデントサイズ（Terraform/YAMLに適した設定）
+  "editor.detectIndentation": false,   // ファイル毎のインデント自動検出を無効化（統一性重視）
+  "editor.trimAutoWhitespace": true,   // 保存時に行末の空白を自動削除
+  "editor.formatOnSave": true,         // 保存時に自動フォーマット実行
+  "editor.formatOnPaste": true,        // 貼り付け時に自動フォーマット実行
+  "editor.tabCompletion": "onlySnippets", // スニペット補完のみ有効化
+
+  // 🎨 統合ターミナル設定（Scoop Git Bash統一環境）
+  "terminal.integrated.defaultProfile.windows": "Git Bash", // デフォルトでScoop版Git Bashを使用
+  "terminal.integrated.profiles.windows": {    // 利用可能なターミナルプロファイル定義
+    "PowerShell": {
+      "source": "PowerShell",          // Windows標準PowerShell
+      "icon": "terminal-powershell"
+    },
+    "Command Prompt": {
+      "path": ["${env:windir}\\System32\\cmd.exe"], // Windows標準コマンドプロンプト
+      "icon": "terminal-cmd"
+    },
+
+    "Git Bash (Scoop)": {
+      "path": "${env:USERPROFILE}\\scoop\\apps\\git\\current\\bin\\bash.exe", // Scoop版GitのBashパス
+      "args": ["-l", "-i"],            // -l: ログインシェル（.bashrc読込）、-i: 対話型シェル
+      "icon": "terminal-bash"          // ターミナル一覧でのアイコン表示
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // 📝 言語別フォーマッター設定
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+  // Terraform設定
+  "[terraform]": {
+    "editor.defaultFormatter": "hashicorp.terraform", // HashiCorp公式フォーマッター使用
+    "editor.formatOnSave": true,       // 保存時自動フォーマット
+    "editor.formatOnSaveMode": "file"  // ファイル全体をフォーマット
+  },
+  "[terraform-vars]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSave": true
+  },
+
+  // JSON設定（Prettier使用）
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode", // Prettier使用
+    "editor.formatOnSave": true
+  },
+  "[jsonc]": {                         // JSONコメント付きファイル
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // 🏗️ HashiCorp Terraform拡張機能 (必須)
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+  "terraform.languageServer.enable": true, // Terraform言語サーバー有効化
+
+  // terraform.pathは存在しない設定キーのため削除
+  // tenvがPATHに配置され、拡張機能が自動的にterraformを検出
+
+  // 実験的機能: 保存時の自動バリデーション（terraform validate実行）
+  "terraform.experimentalFeatures.validateOnSave": true,
+
+  // 実験的機能: リソースブロック補完時に必須フィールドを自動挿入
+  "terraform.experimentalFeatures.prefillRequiredFields": true,
+
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // 📖 Markdown関連拡張機能 (必須)
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+  // Markdownlint設定 (davidanson.vscode-markdownlint)
+  "markdownlint.configFile": ".markdownlint.json", // プロジェクト固有のMarkdownlint設定ファイル使用
+
+  // Paste Image設定 (mushan.vscode-paste-image)
+  "pasteImage.defaultName": "[image]YYMMDD_HHmmss", // 画像ファイル名フォーマット
+  "pasteImage.basePath": "${currentFileDir}",      // 相対パス基準ディレクトリ
+  "pasteImage.path": "${projectRoot}/images",      // 画像保存先ディレクトリ
+
+  // Markdown Extension設定
+  "markdown.extension.print.imgToBase64": true,    // 印刷時に画像をBase64変換
+
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // 🔀 Git・GitHub拡張機能 (必須)
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+  // Git基本設定 (VS Code/Cursor内蔵)
+  "git.autofetch": true,               // バックグラウンドで自動フェッチ実行
+  "git.pruneOnFetch": true,            // フェッチ時に削除されたリモートブランチを自動削除
+  "git.autofetchPeriod": 600,          // 自動フェッチ間隔（秒）10分間隔
+  "git.openRepositoryInParentFolders": "never", // 親フォルダーでのリポジトリ検索無効化
+
+  // GitLens設定 (eamodio.gitlens)
+  "gitlens.defaultGravatarsStyle": "mp",           // Gravatarアイコンスタイル
+  "gitlens.blame.format": "${author}, ${date}",   // Blame表示フォーマット
+  "gitlens.blame.heatmap.enabled": false,         // Blameヒートマップ無効化（パフォーマンス向上）
+  "gitlens.graph.minimap.enabled": false,         // ミニマップ無効化
+  "gitlens.views.scm.grouped.views": {
+    "commits": false,
+    "branches": false,
+    "remotes": false,
+    "stashes": false,
+    "tags": true,
+    "worktrees": true,
+    "contributors": true,
+    "fileHistory": false,
+    "repositories": true,
+    "searchAndCompare": false,
+    "launchpad": false
+  },
+
+  // Conventional Commits設定 (vivaxy.vscode-conventional-commits)
+  "conventionalCommits.scopes": [
+    "terraform",
+    "infra",
+    "aws",
+    "rds",
+    "ecs",
+    "alb",
+    "vpc",
+    "security",
+    "monitoring",
+    "docs",
+    "config",
+    "ci",
+    "*.sh",
+    "vscode",
+    "ses"
+  ],
+
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // 🐍 Python拡張機能 (推奨)
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+  // Python基本設定 (ms-python.python)
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe", // uv仮想環境のPythonを使用
+  "python.terminal.activateEnvironment": true,    // ターミナル起動時に仮想環境自動アクティベート
+  "python.linting.enabled": true,                 // リンティング機能有効化
+  "python.linting.pylintEnabled": false,          // Pylint無効化（Flake8を優先）
+  "python.linting.flake8Enabled": true,           // Flake8有効化
+
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+  // ✅ Code Spell Checker拡張機能 (必須)
+  // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+  // スペルチェック基本設定 (streetsidesoftware.code-spell-checker)
+  "cSpell.enableFiletypes": ["!markdown", "!json"], // Markdown・JSONは無効化（textlintを使用するため）
+  "cSpell.ignoreRegExpList": [                       // 正規表現パターン除外設定
+    "/Z[0-9A-Z]{8,32}/g",     // AWSリソースID形式
+    "/arn:aws:*.+/g"          // AWS ARN形式
+  ],
+
+  // プロジェクト固有の辞書登録
+  "cSpell.words": [
+    // プロジェクト関連
+    "atjc", "sekiguchi", "wikijs", "yourname",
+
+    // AWS関連
+    "AWSAPI", "awslabs", "cloudfront", "cloudwatch", "cloudtrail", "codecommit", "codebuild", "codedeploy", "codepipeline",
+    "elbv", "natgw", "igw", "subnets", "vpc", "nacl", "elasticache", "opensearch", "ssm", "secretsmanager", "kms", "waf",
+    "guardduty", "iam", "cognito", "ses", "sns", "sqs", "kinesis", "firehose", "eventbridge", "lambda", "ecs", "ecr", "eks",
+    "rds", "aurora", "dynamodb", "s3", "glacier", "backup", "macie", "config", "cloudformation", "organizations",
+    "controltower", "securityhub", "inspector", "systems", "xray", "apigw", "apigateway", "acm", "route53", "elb", "nlb",
+    "alb", "asg", "ami", "ebs", "efs", "fsx", "datasync", "directconnect", "vpn", "transitgateway", "privatelink",
+    "endpoints", "nacls", "Fargate", "xlarge",
+
+    // Terraform関連
+    "terraform", "tfenv", "tflint", "tfstate", "tfvars", "tfplan", "tflock", "hcl", "interpolation",
+
+    // セキュリティ関連
+    "Clickjacking", "PITR",
+
+    // 開発ツール関連
+    "dockerfile", "kubernetes", "gitignore", "gitattributes", "precommit", "markdownlint", "textlint", "checkov",
+    "infracost", "gitlens", "peacock", "vscode", "cursor", "postgresql", "nginx", "redis", "memcached",
+
+    // 技術用語
+    "cooldown", "flowlogs", "formatdate", "jsonencode", "logstorage", "requarks", "Rollouts", "usename", "Contex",
+    "monitoring", "alerting", "dashboard", "grafana", "pro...
